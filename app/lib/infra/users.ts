@@ -18,7 +18,7 @@ export async function login(prevState: string | undefined, formData: FormData,) 
 
 export async function getUsuarioPorEmail(email: string): Promise<User | undefined> {
     try {
-        const usuario = await sql<User>`SELECT * FROM usuarios WHERE email=${email}`;
+        const usuario = await sql<User>`SELECT * FROM users WHERE email=${email}`;
         return usuario.rows[0];
     } catch (erro) {
         console.error('Erro na consulta de usuario:', erro);
@@ -28,7 +28,7 @@ export async function getUsuarioPorEmail(email: string): Promise<User | undefine
 
 export async function getUsuarios(): Promise<Array<any>> {
     try {
-        const usuarios = await sql`SELECT * FROM usuarios`;
+        const usuarios = await sql`SELECT * FROM users`;
         return usuarios.rows;
     } catch (erro) {
         console.error('Erro na consulta de usuario:', erro);
