@@ -14,3 +14,18 @@ export async function getGames() {
         throw new Error('Erro na consulta de contatos.');
     }
 }
+
+export async function storeGame(game: Game) {
+    try {
+        const query = await sql<Game>`
+            INSERT INTO games
+            ("user_id", "console_id", "title", "image")
+            VALUES (${game.user_id}, ${game.console_id},${game.title}, ${game.image})
+            RETURNING id, user_id, console_id, title, image
+        `;
+        return query.rows[0]
+    } catch (erro) {
+        console.error('Error storing game:', erro);
+        throw new Error('Error storing game.');
+    }
+}
