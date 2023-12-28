@@ -40,7 +40,7 @@ export default function LoginForm() {
         <span>{msg}</span>
         <form action={formAction} className="space-y-3">
             <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
-                <h1 className="mb-3 text-2xl">Entrar no Sistema</h1>
+                <h1 className="mb-3 text-2xl">Login</h1>
                 <div className="w-full">
                     <div>
                         <label className="mb-3 mt-5 block text-xs font-medium text-gray-900" htmlFor="email">
@@ -63,8 +63,8 @@ export default function LoginForm() {
                 </div>
                 <div className="container py-5 px-5 mx-0 min-w-full flex flex-col items-center">
                     <Button.Group>
-                        <Button type="submit" className="m-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Logar</Button>
-                        <Button className="m-2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" onClick={() => setOpenModal(true)}>Sign Up</Button>
+                        <Button type="submit" className="m-2 bg-blue-500 text-white font-bold py-2 px-4 rounded">Login</Button>
+                        <Button color="success" className="m-2 bg-green-500 text-white font-bold py-2 px-4 rounded" onClick={() => setOpenModal(true)}>Sign Up</Button>
                     </Button.Group>
                 </div>
                 <div className="flex h-5 items-end space-x-1">

@@ -1,122 +1,191 @@
 'use client'
 
-import { signOut } from '@/auth';
 import { Button, Modal } from 'flowbite-react';
-import { getGames } from '../lib/infra/games';
 import { Game } from '../lib/domain/games';
-import { Card } from 'flowbite-react';
-import { useState } from 'react';
+import { User } from '../lib/domain/users';
+import { Console } from '../lib/domain/consoles';
+import { Card, Select } from 'flowbite-react';
+import { useState, useEffect } from 'react';
 
-
-
-export default async function Collection() {
+export default function Collection() {
 
   const [openModal, setOpenModal] = useState(false);
-  const [game, setGame] = useState<Game>({ id: "", title: "", console_id: "", user_id: "", image: ""});
-  const [msg, setMsg] = useState("");
+  const [game, setGame] = useState<Game>({ id: "", title: "", console_id: "", user_id: "" });
+  const [games, setGames] = useState<Game[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [consoles, setConsoles] = useState<Console[]>([]);
+  const [filter, setFilter] = useState<Game>({ id: "", title: "", console: "", user: "", image: "" });
 
-  const games = await getGames();
+  useEffect(() => {
+    loadGames();
+    loadUsers();
+    loadConsoles();
+  }, []);
 
-  const handleChange = (event : React.FormEvent<EventTarget>) => {
-      let target = event.target as HTMLInputElement;
-      const fieldName = target.name;
-      const fieldValue = target.value;
-      setGame((objetoAtual) => {
-          return { ...objetoAtual, [fieldName]: fieldValue }
+  useEffect(() => {
+    applyFilter(filter);
+  }, [filter]);
+
+  const loadGames = async () => {
+    const response = await fetch('/api/games');
+    const data = await response.json();
+    setGames(data.games);
+  }
+
+  const loadUsers = async () => {
+    const response = await fetch('/api/users');
+    const data = await response.json();
+    setUsers(data.users);
+  }
+
+  const loadConsoles = async () => {
+    const response = await fetch('/api/consoles');
+    const data = await response.json();
+    setConsoles(data.consoles);
+  }
+
+  const handleChange = (event: React.FormEvent<EventTarget>) => {
+    let target = event.target as HTMLInputElement;
+    const fieldName = target.name;
+    const fieldValue = target.value;
+    setGame((objetoAtual) => {
+      return { ...objetoAtual, [fieldName]: fieldValue }
     })
   };
 
+  const handleFilter = (event: React.FormEvent<EventTarget>) => {
+    let target = event.target as HTMLInputElement;
+    const fieldName = target.name;
+    const fieldValue = target.value;
+    setFilter((objetoAtual) => {
+      return { ...objetoAtual, [fieldName]: fieldValue }
+    });
+  };
+
+  const applyFilter = (filter: Game) => {
+    if (filter.console || filter.title || filter.user) {
+      const filteredGames = games.filter(game => {
+        const filterConsole = filter.console && game.console && game.console.toLowerCase().includes(filter.console.toLowerCase());
+        const filterUser = filter.user && game.user && game.user.toLowerCase().includes(filter.user.toLowerCase());
+        const filterTitle = filter.title && game.title && game.title.toLowerCase().includes(filter.title.toLowerCase());
+
+        return filterConsole || filterUser || filterTitle;
+      });
+
+      setGames(filteredGames);
+    } else {
+      loadGames();
+    }
+  }
+
   const handleSave = async (event: React.FormEvent<EventTarget>) => {
     await fetch('/api/games', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(game),
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(game),
     })
-        .then((response) => response.json())
-        .then((data) => setMsg(data.mensagem));
+      .then((response) => response.json());
     setOpenModal(false);
-  } 
+    loadGames();
+  }
+
+  const handleLogout = async () => {
+
+    await fetch('/api/users/logout')
+      .then(() => {location.reload()});
+  }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-7xl w-full items-center justify-between font-mono text-sm">
+    <main className="flex min-h-screen flex-col p-12">
+      <div className="z-10 max-w-8xl items-center font-mono text-sm">
         <div className="flex justify-between">
-        <h1 className="text-lg content-center">Game Collection</h1>
-        <div className='inline-flex'>
-          <Button onClick={() => setOpenModal(true)} className="m-2 bg-green-500 hover:bg-green-700 text-white font-bold rounded">+ Game</Button>
-          <form action={async () => { 'use server'; await signOut(); }} method="POST">
-            <Button type="submit" className="m-2 bg-blue-500 hover:bg-blue-700 text-white font-bold rounded">Logout</Button>
-          </form>
+          <h1 className="text-lg content-center">Game Collection</h1>
+          <div className='inline-flex'>
+            <Button onClick={() => setOpenModal(true)} className="m-2 bg-green-500 hover:bg-green-700 text-white font-bold rounded">+ Game</Button>
+            <Button onClick={() => handleLogout()} className="m-2 bg-blue-500 hover:bg-blue-700 text-white font-bold rounded">Logout</Button>
+          </div>
         </div>
-        </div>
-        <div className="container py-5 px-5 mx-0 min-w-full flex flex-col items-center">
+        <form className="w-full">
+          <div className="flex flex-wrap -mx-3 mb-2">
+            <div className="w-full md:w-1/4 px-3 mb-6 md:mb-0">
+              <input name="title" onChange={handleFilter} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="text" placeholder="Filter by Title" />
+            </div>
+            <div className="w-full md:w-1/4 px-3 mb-6 md:mb-0">
+              <input name="user" onChange={handleFilter} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="text" placeholder="Filter by User" />
+            </div>
+            <div className="w-full md:w-1/4 px-3 mb-6 md:mb-0">
+              <input name="console" onChange={handleFilter} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="text" placeholder="Filter by Console" />
+            </div>
+          </div>
+        </form>
+        <div className="justify-items-center w-full grid place-content-center grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {games &&
-          games.map(game => 
-            <Card className="max-w-sm" imgSrc="/images/mario_kart_8.webp" horizontal>
-              <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                {game.title}
-              </h5>
-              <ul>
-                <li>User: {game.user}</li>
-                <li>Console: {game.console}</li>
-              </ul>
-            </Card>
-          )}
+            games.map(game =>
+              <div className="w-full h-full">
+                <Card
+                  key={game.id}
+                  imgSrc={game.image}
+                  horizontal>
+                  <h5 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
+                    {game.title}
+                  </h5>
+                  <span>Console: {game.console}</span>
+                  <span>User: {game.user}</span>
+                </Card>
+              </div>
+            )}
         </div>
       </div>
       <Modal show={openModal} onClose={() => setOpenModal(false)}>
         <Modal.Header>Sign up to GCM</Modal.Header>
-            <form>
-              <Modal.Body>
-                <div className="space-y-6">
-                    <div>
-                        <label className="mb-3 mt-5 block text-xs font-medium text-gray-900" htmlFor="title">
-                            Title
-                        </label>
-                        <div className="relative">
-                            <input className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
-                                id="title" name="title" onChange={handleChange} required />
-                        </div>
-                    </div>
-                    <div>
-                        <label className="mb-3 mt-5 block text-xs font-medium text-gray-900" htmlFor="image">
-                            Image
-                        </label>
-                        <div className="relative">
-                            <input className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
-                                id="image" name="image" onChange={handleChange} required />
-                        </div>
-                    </div>
-                    <div className="mt-4">
-                        <label className="mb-3 mt-5 block text-xs font-medium text-gray-900" htmlFor="user_id">
-                            User
-                        </label>
-                        <div className="relative">
-                            <input className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
-                                id="user_id" name="user_id" required minLength={6} onChange={handleChange}/>
-                        </div>
-                      </div>
-                    </div>
-                    <div>
-                        <label className="mb-3 mt-5 block text-xs font-medium text-gray-900" htmlFor="console_id">
-                            Console
-                        </label>
-                        <div className="relative">
-                            <input className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
-                                id="console_id" name="console_id" onChange={handleChange} required />
-                        </div>
-                    </div>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button onClick={handleSave}>Add Game</Button>
-                    <Button color="gray" onClick={() => setOpenModal(false)}>
-                        Cancel
-                    </Button>
-                </Modal.Footer>
-            </form>
-        </Modal>
+        <form>
+          <Modal.Body>
+            <div className="space-y-6">
+              <div>
+                <label className="mb-3 mt-5 block text-xs font-medium text-gray-900" htmlFor="title">
+                  Title
+                </label>
+                <div className="relative">
+                  <input className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
+                    id="title" name="title" onChange={handleChange} required />
+                </div>
+              </div>
+              <div className="mt-4">
+                <label className="mb-3 mt-5 block text-xs font-medium text-gray-900" htmlFor="user_id">
+                  User
+                </label>
+                <div className="relative">
+                  <Select id="user_id" name="user_id" onChange={handleChange} required>
+                    {users &&
+                      users.map(user =>
+                        <option value={user.id}>{user.name}</option>
+                      )}
+                  </Select>
+                </div>
+              </div>
+            </div>
+            <div>
+              <label className="mb-3 mt-5 block text-xs font-medium text-gray-900" htmlFor="console_id">
+                Console
+              </label>
+              <Select id="console_id" name="console_id" onChange={handleChange} required>
+                {consoles &&
+                  consoles.map(console =>
+                    <option value={console.id}>{console.name}</option>
+                  )}
+              </Select>
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button onClick={handleSave}>Add Game</Button>
+            <Button color="gray" onClick={() => setOpenModal(false)}>
+              Cancel
+            </Button>
+          </Modal.Footer>
+        </form>
+      </Modal>
     </main>
   )
 }

@@ -5,5 +5,5 @@ export type Game = {
     console_id?: string;
     console?: string;
     title: string;
-    image: string;
+    image?: string;
   };
