@@ -22,9 +22,7 @@ export default function Collection() {
     loadConsoles();
   }, []);
 
-  useEffect(() => {
-    applyFilter(filter);
-  }, [filter]);
+  
 
   const loadGames = async () => {
     const response = await fetch('/api/games');
@@ -53,15 +51,6 @@ export default function Collection() {
     })
   };
 
-  const handleFilter = (event: React.FormEvent<EventTarget>) => {
-    let target = event.target as HTMLInputElement;
-    const fieldName = target.name;
-    const fieldValue = target.value;
-    setFilter((objetoAtual) => {
-      return { ...objetoAtual, [fieldName]: fieldValue }
-    });
-  };
-
   const applyFilter = (filter: Game) => {
     if (filter.console || filter.title || filter.user) {
       const filteredGames = games.filter(game => {
@@ -77,6 +66,19 @@ export default function Collection() {
       loadGames();
     }
   }
+  
+  useEffect(() => {
+    applyFilter(filter);
+  }, [filter, applyFilter]);
+
+  const handleFilter = (event: React.FormEvent<EventTarget>) => {
+    let target = event.target as HTMLInputElement;
+    const fieldName = target.name;
+    const fieldValue = target.value;
+    setFilter((objetoAtual) => {
+      return { ...objetoAtual, [fieldName]: fieldValue }
+    });
+  };
 
   const handleSave = async (event: React.FormEvent<EventTarget>) => {
     await fetch('/api/games', {
@@ -123,9 +125,8 @@ export default function Collection() {
         <div className="justify-items-center w-full grid place-content-center grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {games &&
             games.map(game =>
-              <div className="w-full h-full">
+              <div key={game.id} className="w-full h-full">
                 <Card
-                  key={game.id}
                   imgSrc={game.image}
                   horizontal>
                   <h5 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
@@ -160,7 +161,7 @@ export default function Collection() {
                   <Select id="user_id" name="user_id" onChange={handleChange} required>
                     {users &&
                       users.map(user =>
-                        <option value={user.id}>{user.name}</option>
+                        <option key={user.id} value={user.id}>{user.name}</option>
                       )}
                   </Select>
                 </div>
@@ -173,7 +174,7 @@ export default function Collection() {
               <Select id="console_id" name="console_id" onChange={handleChange} required>
                 {consoles &&
                   consoles.map(console =>
-                    <option value={console.id}>{console.name}</option>
+                    <option key={console.id} value={console.id}>{console.name}</option>
                   )}
               </Select>
             </div>
