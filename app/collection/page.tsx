@@ -99,9 +99,15 @@ export default function Collection() {
   }
 
   const handleDelete = async (id: string) => {
-    await fetch(`/api/games/${id}`).then(response => response.json());
+    await fetch(`/api/games/${id}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ 'id': id }),
+    }).then(response => response.json());
     loadGames();
-}
+  }
 
   return (
     <main className="flex min-h-screen flex-col p-12">

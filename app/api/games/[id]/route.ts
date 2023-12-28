@@ -1,8 +1,9 @@
 import { deleteGame } from "@/app/lib/infra/games";
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request) {
+    const body = await request.json();
     try {
-      await deleteGame(params.id);
+      await deleteGame(body.id);
     } catch (error) {
       return Response.json({ error });
     }
