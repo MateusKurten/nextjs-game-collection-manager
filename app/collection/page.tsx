@@ -1,16 +1,20 @@
 'use client'
 
 import { Button, Modal } from 'flowbite-react';
+import { useFormState } from 'react-dom';
 import { Game } from '../lib/domain/games';
 import { User } from '../lib/domain/users';
 import { Console } from '../lib/domain/consoles';
 import GameCard from '../lib/ui/game-card';
 import { Select } from 'flowbite-react';
 import { useState, useEffect } from 'react';
+import { logout } from '../lib//infra/users';
+
 
 export default function Collection() {
 
   const [openModal, setOpenModal] = useState(false);
+  const [errorMessage, formAction] = useFormState(logout, undefined);
   const [game, setGame] = useState<Game>({ id: "", title: "", console_id: "", user_id: "" });
   const [games, setGames] = useState<Game[]>([]);
   const [originalGames, setOriginalGames] = useState<Game[]>([]);
@@ -94,11 +98,6 @@ export default function Collection() {
     loadGames();
   }
 
-  const handleLogout = async () => {
-    await fetch('/api/users/logout')
-      .then(() => {location.reload()});
-  }
-
   const handleDelete = async (id: string) => {
     await fetch(`/api/games/${id}`, {
         method: 'DELETE',
@@ -113,7 +112,9 @@ export default function Collection() {
           <h1 className="text-lg content-center">Game Collection</h1>
           <div className='inline-flex'>
             <Button onClick={() => setOpenModal(true)} className="m-2 bg-green-500 hover:bg-green-700 text-white font-bold rounded">+ Game</Button>
-            <Button onClick={() => handleLogout()} className="m-2 bg-blue-500 hover:bg-blue-700 text-white font-bold rounded">Logout</Button>
+            <form action={formAction}>
+              <Button type="submit" className="m-2 bg-blue-500 hover:bg-blue-700 text-white font-bold rounded">Logout</Button>
+            </form>
           </div>
         </div>
         <form className="w-full">

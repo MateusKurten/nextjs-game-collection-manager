@@ -17,6 +17,18 @@ export async function login(prevState: string | undefined, formData: FormData,) 
   }
 }
 
+export async function logout(prevState: string | undefined, formData: FormData,) {
+  try {
+    await signOut();
+  } catch (error) {
+    if (error instanceof AuthError) {
+      return 'Cannot logout.';
+    }
+    throw error;
+  }
+}
+
+
 export async function getUserByEmail(email: string): Promise<User | undefined> {
   try {
     const usuario = await sql<User>`SELECT * FROM users WHERE email=${email}`;
