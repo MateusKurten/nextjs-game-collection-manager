@@ -99,9 +99,7 @@ export default function Collection() {
   }
 
   const handleDelete = async (id: string) => {
-    await fetch(`/api/games/${id}`, {
-        method: 'DELETE',
-    }).then(response => response.json());
+    await fetch(`/api/games/${id}`).then(response => response.json());
     loadGames();
 }
 
