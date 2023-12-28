@@ -14,6 +14,7 @@ export default function LoginForm() {
   const [msg, setMsg] = useState("");
 
   const handleSave = async (event: React.FormEvent<EventTarget>) => {
+    setOpenModal(false);
     await fetch('/api/users', {
       method: 'POST',
       headers: {
@@ -23,7 +24,6 @@ export default function LoginForm() {
     })
       .then((response) => response.json())
       .then((data) => setMsg(data.mensagem));
-    setOpenModal(false);
   }
 
   const handleChange = (event: React.FormEvent<EventTarget>) => {

@@ -27,3 +27,15 @@ export async function storeGame(game: Game) {
     throw new Error('Error storing game.');
   }
 }
+
+export async function deleteGame(id: string) {
+  try {
+    const consulta = await sql<Game>`
+      DELETE FROM games 
+      WHERE id=${id}
+    `;
+  } catch (erro) {
+    console.error('Error deleting game:', erro);
+    throw new Error('Error deleting game.');
+  }
+}

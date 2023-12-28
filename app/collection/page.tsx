@@ -4,7 +4,8 @@ import { Button, Modal } from 'flowbite-react';
 import { Game } from '../lib/domain/games';
 import { User } from '../lib/domain/users';
 import { Console } from '../lib/domain/consoles';
-import { Card, Select } from 'flowbite-react';
+import GameCard from '../lib/ui/game-card';
+import { Select } from 'flowbite-react';
 import { useState, useEffect } from 'react';
 
 export default function Collection() {
@@ -22,8 +23,6 @@ export default function Collection() {
     loadUsers();
     loadConsoles();
   }, []);
-
-  
 
   const loadGames = async () => {
     const response = await fetch('/api/games');
@@ -83,6 +82,7 @@ export default function Collection() {
   };
 
   const handleSave = async (event: React.FormEvent<EventTarget>) => {
+    setOpenModal(false);
     await fetch('/api/games', {
       method: 'POST',
       headers: {
@@ -91,15 +91,20 @@ export default function Collection() {
       body: JSON.stringify(game),
     })
       .then((response) => response.json());
-    setOpenModal(false);
     loadGames();
   }
 
   const handleLogout = async () => {
-
     await fetch('/api/users/logout')
       .then(() => {location.reload()});
   }
+
+  const handleDelete = async (id: string) => {
+    await fetch(`/api/games/${id}`, {
+        method: 'DELETE',
+    }).then(response => response.json());
+    loadGames();
+}
 
   return (
     <main className="flex min-h-screen flex-col p-12">
@@ -127,17 +132,7 @@ export default function Collection() {
         <div className="justify-items-center w-full grid place-content-center grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {games &&
             games.map(game =>
-              <div key={game.id} className="w-full h-full">
-                <Card
-                  imgSrc={game.image}
-                  horizontal>
-                  <h5 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
-                    {game.title}
-                  </h5>
-                  <span>Console: {game.console}</span>
-                  <span>User: {game.user}</span>
-                </Card>
-              </div>
+              <GameCard key={game.id} game={game} onDelete={handleDelete} />
             )}
         </div>
       </div>
