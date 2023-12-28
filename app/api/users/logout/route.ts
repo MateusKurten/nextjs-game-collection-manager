@@ -5,6 +5,7 @@ export async function GET() {
   try {
     await signOut();
   } catch (error) {
+    console.log({ error })
     return NextResponse.json({ error });
   }
   return NextResponse.json({ mensagem: "Logout successful!" });
