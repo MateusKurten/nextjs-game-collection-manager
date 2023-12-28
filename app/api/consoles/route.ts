@@ -5,7 +5,7 @@ export async function GET(request: Request) {
   try {
     const consoles = await getConsoles();
     return NextResponse.json({ consoles });
-  }catch(error) {
+  } catch(error) {
     return NextResponse.json({ error });
   }   
 }

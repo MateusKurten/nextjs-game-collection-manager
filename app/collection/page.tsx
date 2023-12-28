@@ -12,6 +12,7 @@ export default function Collection() {
   const [openModal, setOpenModal] = useState(false);
   const [game, setGame] = useState<Game>({ id: "", title: "", console_id: "", user_id: "" });
   const [games, setGames] = useState<Game[]>([]);
+  const [originalGames, setOriginalGames] = useState<Game[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [consoles, setConsoles] = useState<Console[]>([]);
   const [filter, setFilter] = useState<Game>({ id: "", title: "", console: "", user: "", image: "" });
@@ -28,6 +29,7 @@ export default function Collection() {
     const response = await fetch('/api/games');
     const data = await response.json();
     setGames(data.games);
+    setOriginalGames(data.games);
   }
 
   const loadUsers = async () => {
@@ -53,7 +55,7 @@ export default function Collection() {
 
   const applyFilter = (filter: Game) => {
     if (filter.console || filter.title || filter.user) {
-      const filteredGames = games.filter(game => {
+      const filteredGames = originalGames.filter(game => {
         const filterConsole = filter.console && game.console && game.console.toLowerCase().includes(filter.console.toLowerCase());
         const filterUser = filter.user && game.user && game.user.toLowerCase().includes(filter.user.toLowerCase());
         const filterTitle = filter.title && game.title && game.title.toLowerCase().includes(filter.title.toLowerCase());
