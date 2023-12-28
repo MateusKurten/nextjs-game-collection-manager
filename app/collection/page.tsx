@@ -69,7 +69,7 @@ export default function Collection() {
   
   useEffect(() => {
     applyFilter(filter);
-  }, [filter, applyFilter]);
+  }, [filter]);
 
   const handleFilter = (event: React.FormEvent<EventTarget>) => {
     let target = event.target as HTMLInputElement;
@@ -159,6 +159,7 @@ export default function Collection() {
                 </label>
                 <div className="relative">
                   <Select id="user_id" name="user_id" onChange={handleChange} required>
+                    <option>Select User</option>
                     {users &&
                       users.map(user =>
                         <option key={user.id} value={user.id}>{user.name}</option>
@@ -172,6 +173,7 @@ export default function Collection() {
                 Console
               </label>
               <Select id="console_id" name="console_id" onChange={handleChange} required>
+              <option>Select Console</option>
                 {consoles &&
                   consoles.map(console =>
                     <option key={console.id} value={console.id}>{console.name}</option>

@@ -46,7 +46,6 @@ export async function storeUser(user: User) {
             VALUES (${user.name}, ${user.email},${await hashedPassword})
             RETURNING id, name, email, password
         `;
-        console.log(user);
         return query.rows[0]
     } catch (erro) {
         console.error('Erro na consulta de usuario:', erro);
